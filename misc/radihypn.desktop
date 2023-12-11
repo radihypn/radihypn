@@ -1,0 +1,14 @@
+[Desktop Entry]
+Comment=
+Exec=/home/satori/work/radihypn9/radihypn
+GenericName=radio app
+Icon=radiohypn9icon_v3.jpg
+Name=radihypn
+NoDisplay=false
+Path=
+StartupNotify=true
+Terminal=false
+TerminalOptions=
+Type=Application
+X-KDE-SubstituteUID=false
+X-KDE-Username=

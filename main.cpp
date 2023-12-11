@@ -174,10 +174,15 @@ public:
     favor_button.signal_clicked().connect(
         sigc::mem_fun(*this, &SearchApp::on_favor_button_clicked));
 
+    clipboard_button.set_label("Copy url");
+    clipboard_button.signal_clicked().connect(
+        sigc::mem_fun(*this, &SearchApp::on_clipboard_button_clicked));
+
     Gtk::Box *hbox2 =
         Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_HORIZONTAL, 10));
     hbox2->pack_start(play_pause_button, Gtk::PACK_SHRINK);
     hbox2->pack_start(favor_button, Gtk::PACK_SHRINK);
+    hbox2->pack_start(clipboard_button, Gtk::PACK_SHRINK);
 
     // Create box layout
     Gtk::Box *vbox = Gtk::manage(new Gtk::Box(Gtk::ORIENTATION_VERTICAL, 10));
@@ -236,6 +241,20 @@ public:
   }
 
 protected:
+  void on_clipboard_button_clicked() {
+    Glib::RefPtr<Gtk::Clipboard> clipboard = Gtk::Clipboard::get();
+      auto row_iter = (result_list.get_selection()->get_selected());
+      if (!row_iter) return;
+
+      auto row = *row_iter;
+      std::stringstream data(row[result_columns.json]);
+      json j;
+      data >> j;
+
+      clipboard->set_text(j["url"].dump());
+      clipboard->store();
+  }
+
   void on_search_button_clicked() {
     // Get search query from the search entry
     std::string search_query = search_entry.get_text();
@@ -245,6 +264,7 @@ protected:
     }
 
     search_button.set_label("Search");
+    favor_button.set_label("Favor");
 
     try {
 
@@ -360,6 +380,7 @@ private:
   Gtk::Button favorites_button;
   Gtk::TreeView result_list;
   Gtk::Button play_pause_button;
+  Gtk::Button clipboard_button;
   Gtk::ScrolledWindow result_scrolled_window;
   // Glib::RefPtr<Gtk::StatusIcon> m_status_icon;
 

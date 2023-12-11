@@ -22,7 +22,7 @@ build:
 	${CXX} ${CXXFLAGS} main.cpp $$(${PKGCONF} --libs --cflags ${PKGCONF_DEPS}) -o ${DESTDIR}/${PREFIX}/${EXECUTABLE_NAME}
 
 
-.PHONY: check entr
+.PHONY: build entr
 
 
 entr:
