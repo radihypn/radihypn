@@ -19,5 +19,5 @@ cd radihypn
 
 ### build and install locally without root:
 ```bash
-xmake config -y --mode=release && xmake build -y radihypn && DESTDIR=~/.local xmake install -y
+xmake config -y --mode=release --ldflags="-lpthread" && xmake build -y radihypn && DESTDIR=~/.local xmake install -y
 ```
