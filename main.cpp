@@ -1,20 +1,36 @@
+#include "SQLiteCpp/Statement.h"
+#include <chrono>
 #include <cstdlib>
+#include <string>
 #include <iostream>
+#include <sstream>
 #include <vector>
 
-#include "utest.h"
+#include <utest.h>
 
 #include <curlpp/Easy.hpp>
 #include <curlpp/Exception.hpp>
 #include <curlpp/Options.hpp>
 #include <curlpp/cURLpp.hpp>
 
-#include "json.hpp"
+#include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
-#include "SqliteWrapper.hpp"
+#include <SQLiteCpp/SQLiteCpp.h>
 
 #include <gst/gst.h>
+#include <atomic>
+#include <mutex>
+#include <gtkmm.h>
+#include <thread>
+
+std::atomic<bool> must_exit(false);
+std::mutex searchlock;
+std::atomic<int> querylock(0);
+std::vector<json> results;
+std::string searchquery;
+std::atomic<bool> resultsWanted(true);
+
 
 namespace radihypn {
 std::vector<json> searchRadios(std::string term) {
@@ -40,7 +56,7 @@ std::vector<json> searchRadios(std::string term) {
   return r;
 }
 
-Sqlite::SqliteConnection getDatabaseConnection() {
+SQLite::Database getDatabaseConnection() {
   std::string homepath;
   if (const char *env_home = std::getenv("HOME")) {
     homepath = env_home;
@@ -49,21 +65,25 @@ Sqlite::SqliteConnection getDatabaseConnection() {
   }
 
   homepath += "/.config/radihypn.sqlite";
-  Sqlite::SqliteConnection connection(homepath.c_str());
+  SQLite::Database db(homepath.c_str());
 
-  sqliteExecute(connection, "create table IF NOT EXISTS favourites ("
-                            "station text NOT NULL"
-                            ")");
+  db.exec("create table IF NOT EXISTS favourites ("
+          "station text NOT NULL"
+          ")");
 
-  return connection;
+  return db;
 }
 
 std::vector<json> listFavourites() {
   std::vector<json> r;
 
-  for (auto row : Sqlite::SqliteStatement(getDatabaseConnection(),
-                                          "select station from favourites")) {
-    std::stringstream text(row.getString());
+  SQLite::Statement query(getDatabaseConnection(),
+                          "select station from favourites");
+
+  while (query.executeStep()) {
+    const char* station = query.getColumn(0);
+
+    std::stringstream text(station);
     json parsed;
     text >> parsed;
     r.push_back(parsed);
@@ -74,14 +94,20 @@ std::vector<json> listFavourites() {
 
 void addFavourite(json data) {
   std::string text = data.dump();
-  sqliteExecute(getDatabaseConnection(),
-                "INSERT INTO favourites(station) values (?)", text);
+  SQLite::Statement query(getDatabaseConnection(),
+                "INSERT INTO favourites(station) values (?)");
+  query.bind(0, text);
+
+  query.exec();
 }
 
 void delFavourite(json data) {
   std::string text = data.dump();
-  sqliteExecute(getDatabaseConnection(),
-                "DELETE FROM favourites WHERE station=?", text);
+  SQLite::Statement query(getDatabaseConnection(),
+                "DELETE FROM favourites WHERE station=?");
+  query.bind(0, text);
+
+  query.exec();
 }
 
 } // namespace radihypn
@@ -108,13 +134,28 @@ UTEST(x, favourites_add_delete_works) {
 
 UTEST(x, structurize_stations) {
   auto stations = radihypn::searchRadios("music");
-  for (int a = 0; a < stations.size(); a++) {
+  for (long unsigned int a = 0; a < stations.size(); a++) {
     auto station = stations[a];
     std::cout << station["name"] << std::endl;
   }
 }
 
-#include <gtkmm.h>
+void searchThread(Glib::Dispatcher& dispatcher) {
+  while (!must_exit) {
+    if (querylock > 0) {
+      querylock = 0;
+      std::string query = searchquery;
+      // Perform some time-consuming task
+      auto results2 = radihypn::searchRadios(query);
+      searchlock.lock();
+      results = results2;
+      searchlock.unlock();
+      dispatcher.emit();
+    }
+    std::this_thread::sleep_for(std::chrono::milliseconds(150));
+  }
+}
+
 
 // Global variables
 GstElement *pipeline = nullptr;
@@ -229,7 +270,7 @@ public:
     auto results = radihypn::listFavourites();
 
     // Add dummy results to the list for demonstration purposes
-    for (int i = 0; i < results.size(); i++) {
+    for (long unsigned int i = 0; i < results.size(); i++) {
       // std::string result = std::string("") + results[i]["name"].dump() + " |
       // " + results[i]["url"].dump();
       Gtk::TreeModel::Row row = *(result_store->append());
@@ -240,7 +281,7 @@ public:
 
   }
 
-protected:
+public:
   void on_clipboard_button_clicked() {
     Glib::RefPtr<Gtk::Clipboard> clipboard = Gtk::Clipboard::get();
       auto row_iter = (result_list.get_selection()->get_selected());
@@ -256,6 +297,7 @@ protected:
   }
 
   void on_search_button_clicked() {
+    resultsWanted = true;
     // Get search query from the search entry
     std::string search_query = search_entry.get_text();
     if (search_query.length() < 3) {
@@ -266,26 +308,29 @@ protected:
     search_button.set_label("Search");
     favor_button.set_label("Favor");
 
-    try {
+    searchquery = search_query;
+    querylock++;
 
-      result_store->clear();
-
-      // Perform search and update result list
-      // ...
-      auto results = radihypn::searchRadios(search_query);
-
-      // Add dummy results to the list for demonstration purposes
-      for (int i = 0; i < results.size(); i++) {
-        // std::string result = std::string("") + results[i]["name"].dump() + "
-        // | " + results[i]["url"].dump();
-        Gtk::TreeModel::Row row = *(result_store->append());
-        row[result_columns.name] = results[i]["name"].dump().substr(0, 45);
-        row[result_columns.url] = results[i]["url"].dump();
-        row[result_columns.json] = results[i].dump();
-      }
-
-    } catch (...) {
-    }
+    // try {
+    //
+    //   result_store->clear();
+    //
+    //   // Perform search and update result list
+    //   // ...
+    //   auto results = radihypn::searchRadios(search_query);
+    //
+    //   // Add dummy results to the list for demonstration purposes
+    //   for (long unsigned int i = 0; i < results.size(); i++) {
+    //     // std::string result = std::string("") + results[i]["name"].dump() + "
+    //     // | " + results[i]["url"].dump();
+    //     Gtk::TreeModel::Row row = *(result_store->append());
+    //     row[result_columns.name] = results[i]["name"].dump().substr(0, 45);
+    //     row[result_columns.url] = results[i]["url"].dump();
+    //     row[result_columns.json] = results[i].dump();
+    //   }
+    //
+    // } catch (...) {
+    // }
   }
 
   void on_m_status_icon_activate() {
@@ -299,6 +344,7 @@ protected:
   }
 
   void on_favorites_button_clicked() {
+    resultsWanted = false;
     favor_button.set_label("Unfavor");
     // Show favorites or perform favorites-related actions
     // ...
@@ -310,7 +356,7 @@ protected:
     auto results = radihypn::listFavourites();
 
     // Add dummy results to the list for demonstration purposes
-    for (int i = 0; i < results.size(); i++) {
+    for (long unsigned int i = 0; i < results.size(); i++) {
       // std::string result = std::string("") + results[i]["name"].dump() + " |
       // " + results[i]["url"].dump();
       Gtk::TreeModel::Row row = *(result_store->append());
@@ -372,7 +418,7 @@ protected:
 
   void on_clear_results_button_clicked() { result_store->clear(); }
 
-private:
+public:
   Gtk::Entry search_entry;
   Gtk::Button search_button;
   Gtk::Button clear_results_button;
@@ -409,7 +455,7 @@ bool iconified = false;
 int main(int argc, char *argv[]) {
   curlpp::Cleanup cleaner;
 
-  if (const char *env_testing = std::getenv("TESTING")) {
+  if (std::getenv("TESTING")) {
     return utest_main(argc, argv);
   }
 
@@ -417,6 +463,24 @@ int main(int argc, char *argv[]) {
 
   auto app = Gtk::Application::create(argc, argv, "org.searchapp");
   SearchApp search_app;
+
+  Glib::Dispatcher dispatcher;
+  dispatcher.connect([&]() {
+      if (resultsWanted) {
+        search_app.result_store->clear();
+        searchlock.lock();
+        for (long unsigned int i = 0; i < results.size(); i++) {
+          // std::string result = std::string("") + results[i]["name"].dump() + "
+          // | " + results[i]["url"].dump();
+          Gtk::TreeModel::Row row = *(search_app.result_store->append());
+          row[search_app.result_columns.name] = results[i]["name"].dump().substr(0, 45);
+          row[search_app.result_columns.url] = results[i]["url"].dump();
+          row[search_app.result_columns.json] = results[i].dump();
+        }
+        results.clear();
+        searchlock.unlock();
+      }
+  });
 
   Glib::RefPtr<Gtk::StatusIcon> icon = Gtk::StatusIcon::create("radio");
   icon->set_visible(true);
@@ -431,9 +495,11 @@ int main(int argc, char *argv[]) {
     iconified = !iconified;
   });
 
-  return app->run(search_app);
+  querylock = 0;
+  std::thread worker_thread(searchThread, std::ref(dispatcher));
+  worker_thread.detach();
 
-  std::cout << "Hello, world2!\n";
+  return app->run(search_app);
 
   // Clean up GStreamer
   if (pipeline) {

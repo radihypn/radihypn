@@ -1,2 +1,7 @@
 bin
 *.gz
+build
+builddir
+.cache
+compile_commands.json
+.xmake

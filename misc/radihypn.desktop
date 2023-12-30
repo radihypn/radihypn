@@ -1,9 +1,8 @@
 [Desktop Entry]
-Comment=
-Exec=/home/satori/work/radihypn9/radihypn
+Comment=Nice radio app for gtk3 environment
+Exec=$HOME/.local/bin/radihypn
 GenericName=radio app
-Icon=radiohypn9icon_v3.jpg
-Name=radihypn
+Icon=radihypn.png
 NoDisplay=false
 Path=
 StartupNotify=true
