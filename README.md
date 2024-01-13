@@ -1,6 +1,8 @@
 # radihypn Internet Radio
 Small and simple gtk3 internet radio that has nice tray icon in gtk3 environments like mate, xfce4. Tray icon does not work on Wayland.
 
+![screenshot](./img/radihypn-screenshot.png)
+
 ## Install for Ubuntu 20.04
 
 ### install deps:
