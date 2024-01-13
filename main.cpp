@@ -492,6 +492,7 @@ int main(int argc, char *argv[]) {
     } else {
       search_app.set_skip_taskbar_hint(false);
       search_app.deiconify();
+      search_app.present();
     }
     iconified = !iconified;
   });
