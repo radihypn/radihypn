@@ -1,3 +1,4 @@
+#include "SQLiteCpp/Database.h"
 #include "SQLiteCpp/Statement.h"
 #include <chrono>
 #include <cstdlib>
@@ -65,7 +66,7 @@ SQLite::Database getDatabaseConnection() {
   }
 
   homepath += "/.config/radihypn.sqlite";
-  SQLite::Database db(homepath.c_str());
+  SQLite::Database db(homepath.c_str(), SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
 
   db.exec("create table IF NOT EXISTS favourites ("
           "station text NOT NULL"
