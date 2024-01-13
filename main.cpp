@@ -97,7 +97,7 @@ void addFavourite(json data) {
   std::string text = data.dump();
   SQLite::Statement query(getDatabaseConnection(),
                 "INSERT INTO favourites(station) values (?)");
-  query.bind(0, text);
+  query.bind(1, text);
 
   query.exec();
 }
@@ -106,7 +106,7 @@ void delFavourite(json data) {
   std::string text = data.dump();
   SQLite::Statement query(getDatabaseConnection(),
                 "DELETE FROM favourites WHERE station=?");
-  query.bind(0, text);
+  query.bind(1, text);
 
   query.exec();
 }
