@@ -23,3 +23,8 @@ cd radihypn
 ```bash
 xmake config -y --mode=release && xmake build -y radihypn && DESTDIR=~/.local xmake install -y
 ```
+
+### support
+You can support this project sending donations to:
+
+- monero: 87HRwEMUPwVKU6h79WYm2bVtEasGXUBnmQSKgkfCfgdZCjHUGPEd91AAzYz6SDoH9vDvqPm1zxyNyRWw1pFkUvZSQNpJt18
