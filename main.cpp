@@ -1,3 +1,4 @@
+#include "SQLiteCpp/Database.h"
 #include "SQLiteCpp/Statement.h"
 #include <chrono>
 #include <cstdlib>
@@ -65,7 +66,7 @@ SQLite::Database getDatabaseConnection() {
   }
 
   homepath += "/.config/radihypn.sqlite";
-  SQLite::Database db(homepath.c_str());
+  SQLite::Database db(homepath.c_str(), SQLite::OPEN_READWRITE|SQLite::OPEN_CREATE);
 
   db.exec("create table IF NOT EXISTS favourites ("
           "station text NOT NULL"
@@ -96,7 +97,7 @@ void addFavourite(json data) {
   std::string text = data.dump();
   SQLite::Statement query(getDatabaseConnection(),
                 "INSERT INTO favourites(station) values (?)");
-  query.bind(0, text);
+  query.bind(1, text);
 
   query.exec();
 }
@@ -105,7 +106,7 @@ void delFavourite(json data) {
   std::string text = data.dump();
   SQLite::Statement query(getDatabaseConnection(),
                 "DELETE FROM favourites WHERE station=?");
-  query.bind(0, text);
+  query.bind(1, text);
 
   query.exec();
 }
@@ -491,6 +492,7 @@ int main(int argc, char *argv[]) {
     } else {
       search_app.set_skip_taskbar_hint(false);
       search_app.deiconify();
+      search_app.present();
     }
     iconified = !iconified;
   });
