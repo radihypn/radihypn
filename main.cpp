@@ -37,7 +37,7 @@ namespace radihypn {
 std::vector<json> searchRadios(std::string term) {
   std::vector<json> r;
   curlpp::Easy request;
-  std::string url = "https://at1.api.radio-browser.info/json/stations/search?";
+  std::string url = "https://de1.api.radio-browser.info/json/stations/search?";
   url += "name=" + curlpp::escape(term);
   url += "&hide_broken=true";
   request.setOpt(new curlpp::options::Url(url));
