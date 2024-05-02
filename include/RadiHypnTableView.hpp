@@ -16,6 +16,12 @@ public:
     RowActivatedSignal signal_row_activated();
     FavouriteToggledSignal signal_favourite_toggled();
 
+    RadioStream selected = RadioStream {
+        .name = "",
+        .url = "",
+        .favourite = false
+    };
+
 private:
     void on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column);
     void on_favourite_toggled(const Glib::ustring& path);

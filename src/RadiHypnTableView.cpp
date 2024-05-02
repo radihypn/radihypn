@@ -9,7 +9,7 @@ RadiHypnTableView::RadiHypnTableView() {
 
     m_list_store = Gtk::ListStore::create(m_columns);
     m_tree_view.set_model(m_list_store);
-    m_tree_view.set_activate_on_single_click(false);
+    m_tree_view.set_activate_on_single_click(true);
 
     Gtk::CellRendererToggle* favourite_toggle = Gtk::manage(new Gtk::CellRendererToggle());
     favourite_toggle->signal_toggled().connect(sigc::mem_fun(*this, &RadiHypnTableView::on_favourite_toggled));
@@ -55,6 +55,11 @@ void RadiHypnTableView::on_row_activated(const Gtk::TreeModel::Path& path, Gtk::
         Gtk::TreeModel::Row row = *iter;
         Glib::ustring name = row[m_columns.m_col_name];
         Glib::ustring url = row[m_columns.m_col_url];
+        bool favourite = row[m_columns.m_col_favourite];
+
+        selected.name = name;
+        selected.url = url;
+        selected.favourite = favourite;
 
         m_row_activated_signal.emit(path, column);
     }
