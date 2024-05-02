@@ -2,14 +2,13 @@
 #include <iostream>
 
 int main(int argc, char* argv[]) {
-    RadioStream a {
-        .name = "HelloStream", 
-        .url = "example-url", 
-        .shortdesc = "shortdesc"};
+    auto a = RadioStream::fromJson(R"({
+    "name": "HelloStream",
+    "url_resolved": "example-url"
+    })");
     
     std::cout << a.name <<
         "\n" << a.url <<
-        "\n" << a.shortdesc <<
         "\n";
 
     return 0;

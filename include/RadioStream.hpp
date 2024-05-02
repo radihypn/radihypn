@@ -4,5 +4,7 @@
 struct RadioStream {
     std::string name;
     std::string url;
-    std::string shortdesc;
+    bool favourite = false;
+
+    static RadioStream fromJson(std::string json);
 };
