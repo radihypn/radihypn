@@ -48,7 +48,7 @@ void SearchThread::searchThreadFunc() {
                 streams = api.search(message.query);
                 ok = true;
             } catch (...) {
-
+                api.setNextEndpoint();
             }
 
             if (ok) {
