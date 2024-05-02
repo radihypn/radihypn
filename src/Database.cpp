@@ -9,7 +9,7 @@
 #include <vector>
 
 #include <nlohmann/json.hpp>
-#include <iostream>
+
 using json = nlohmann::json;
 
 static bool fileExist(std::string filePath) {
