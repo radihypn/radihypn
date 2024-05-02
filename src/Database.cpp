@@ -77,6 +77,13 @@ void Database::insert(RadioStream r) {
     query.exec();
 }
 
+void Database::remove(RadioStream r) {
+    SQLite::Statement query(*conn,
+                            "DELETE FROM favourites where url=?");
+    query.bind(1, r.url);
+    query.exec();
+}
+
 void Database::importLegacyDatabase() {
     SQLite::Database legacyConn(getLegacyDatabasePath(), SQLite::OPEN_READONLY);
     SQLite::Statement st(legacyConn, "select * from favourites");

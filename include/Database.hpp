@@ -10,6 +10,7 @@ struct Database {
     ~Database();
 
     void insert(RadioStream r);
+    void remove(RadioStream r);
     std::vector<RadioStream> listFavourites();
 
 private:
