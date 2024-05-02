@@ -17,6 +17,7 @@
 #include <nlohmann/json.hpp>
 using json = nlohmann::json;
 
+
 #include <SQLiteCpp/SQLiteCpp.h>
 
 #include <gst/gst.h>
@@ -292,8 +293,8 @@ public:
       std::stringstream data(row[result_columns.json]);
       json j;
       data >> j;
-
-      clipboard->set_text(j["url"].dump());
+      Glib::ustring clipme = j["url"].dump();
+      clipboard->set_text(clipme.substr(1, clipme.size() - 2));
       clipboard->store();
   }
 
