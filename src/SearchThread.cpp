@@ -16,15 +16,15 @@ SearchThread::~SearchThread() {
     }
 }
 
-void SearchThread::startSearch(std::string query, std::function<void(std::vector<RadioStream>)> cb) {
+void SearchThread::startSearch(SearchQuery q) {
     std::unique_lock<std::mutex> lock(mMutex);
-    mMessageQueue.push(std::make_pair(query, cb));
+    mMessageQueue.push(q);
     mCondVar.notify_one();
 }
 
 void SearchThread::searchThreadFunc() {
     while (true) {
-        std::pair<std::string, std::function<void(std::vector<RadioStream>)>> message;
+        SearchQuery message;
 
         {
             std::unique_lock<std::mutex> lock(mMutex);
@@ -34,8 +34,10 @@ void SearchThread::searchThreadFunc() {
                 break;
             }
 
-            message = mMessageQueue.front();
-            mMessageQueue.pop();
+            message = mMessageQueue.back();
+            while (!mMessageQueue.empty()) {
+                mMessageQueue.pop();
+            }
         }
 
         std::vector<RadioStream> streams;
@@ -43,7 +45,7 @@ void SearchThread::searchThreadFunc() {
 
         for (int i = 0; i < 10; i++) {
             try {
-                streams = api.search(message.first);
+                streams = api.search(message.query);
                 ok = true;
             } catch (...) {
 
@@ -58,9 +60,7 @@ void SearchThread::searchThreadFunc() {
             throw "network search failed!?!";
         }
 
-        if (message.second) {
-            message.second(streams);
-        }
+        message.callback(message.id, streams);
     }
 }
 

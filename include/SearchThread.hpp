@@ -10,12 +10,18 @@
 #include <RadioStream.hpp>
 #include <RadioBrowser.hpp>
 
+struct SearchQuery {
+    int id;
+    std::string query;
+    std::function<void(int, std::vector<RadioStream>)> callback;
+};
+
 class SearchThread {
 private:
     std::thread mThread;
     std::mutex mMutex;
     std::condition_variable mCondVar;
-    std::queue<std::pair<std::string, std::function<void(std::vector<RadioStream>)>>> mMessageQueue;
+    std::queue<SearchQuery> mMessageQueue;
     bool mStopRequested;
 
     RadioBrowserApiEndpoint api;
@@ -25,5 +31,5 @@ private:
 public:
     SearchThread();
     ~SearchThread();
-    void startSearch(std::string query, std::function<void(std::vector<RadioStream>)> callback);
+    void startSearch(SearchQuery q);
 };
