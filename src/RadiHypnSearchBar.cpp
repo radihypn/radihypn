@@ -12,7 +12,7 @@ RadiHypnSearchBar::RadiHypnSearchBar()
     m_entry.set_placeholder_text("Search...");
     m_entry.set_hexpand(true);
     m_entry.set_activates_default(true);
-    m_entry.set_max_length(1);
+
     pack_start(m_entry, Gtk::PACK_EXPAND_WIDGET);
 
     m_button_search.set_can_default(true);
@@ -27,6 +27,7 @@ RadiHypnSearchBar::RadiHypnSearchBar()
     m_button_search.signal_clicked().connect(sigc::mem_fun(*this, &RadiHypnSearchBar::onSearchClicked));
     m_button_clear.signal_clicked().connect(sigc::mem_fun(*this, &RadiHypnSearchBar::onClearClicked));
     m_entry.signal_activate().connect(sigc::mem_fun(*this, &RadiHypnSearchBar::onSearchClicked));
+    m_checkbox.signal_clicked().connect(sigc::mem_fun(*this, &RadiHypnSearchBar::onSearchClicked));
 }
 
 sigc::signal<void(std::string, bool)> RadiHypnSearchBar::signal_search_started() {
