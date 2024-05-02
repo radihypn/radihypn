@@ -4,6 +4,15 @@
 #include <vector>
 #include <string>
 
+
+#include <curlpp/Easy.hpp>
+#include <curlpp/Exception.hpp>
+#include <curlpp/Options.hpp>
+#include <curlpp/cURLpp.hpp>
+
+#include <nlohmann/json.hpp>
+using json = nlohmann::json;
+
 RadioBrowserApiEndpoint::RadioBrowserApiEndpoint() {
     setNextEndpoint();
 }
@@ -23,4 +32,33 @@ void RadioBrowserApiEndpoint::setNextEndpoint() {
     int randomIndex = dist(rng);
 
     address = addrs[randomIndex];
+}
+
+
+std::vector<RadioStream> RadioBrowserApiEndpoint::search(std::string term) {
+    std::vector<RadioStream> r;
+
+    curlpp::Easy request;
+    std::string url = "http://" + address +
+        "/json/stations/search?" +
+        "name=" + curlpp::escape(term) +
+        "&hide_broken=true";
+    request.setOpt(curlpp::options::Url(url));
+    request.setOpt(curlpp::options::FollowLocation(true));
+
+    std::stringstream buff;
+    buff << request;
+    json parsed;
+    buff >> parsed;
+
+    for (json::iterator it = parsed.begin();
+         it != parsed.end(); ++it) {
+        auto item = *it;
+        r.push_back(RadioStream{
+            .name = item["name"],
+            .url = item["url_resolved"]
+        });
+    }
+
+    return r;
 }
