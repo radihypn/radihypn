@@ -10,7 +10,7 @@ Small and simple gtk3 internet radio that has nice tray icon in gtk3 environment
 ```bash
 sudo add-apt-repository -y ppa:xmake-io/xmake
 sudo apt update
-sudo apt install -y build-essential libsqlite3-dev libgstreamer1.0-dev libcurlpp-dev libgtk-3-dev libcurl4-openssl-dev pkg-config libgtkmm-3.0-dev meson cmake xmake git unzip
+sudo apt install -y build-essential libsqlite3-dev libgstreamer1.0-dev libcurlpp-dev libgtk-3-dev libcurl4-openssl-dev pkg-config libgtkmm-3.0-dev meson cmake xmake git unzip valac gobject-introspection python3-pip wget curl libgirepository1.0-dev python3-gi python3-gi-cairo ninja-build python-gi-dev
 ```
 
 ### clone repo:
