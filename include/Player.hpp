@@ -4,10 +4,10 @@
 
 class Player {
   GstElement *pipeline = nullptr;
-  void reset();
   std::string pipeline_arg;
 public:
   void play(std::string url);
+  void reset();
   Player();
   ~Player();
 };

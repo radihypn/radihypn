@@ -1,5 +1,4 @@
 #include <Player.hpp>
-#include <iostream>
 
 void Player::reset() {
   if (pipeline != nullptr) {
@@ -13,10 +12,8 @@ void Player::play(std::string url) {
   reset();
 
   pipeline_arg = "playbin uri=" + url;
-  pipeline = gst_parse_launch(
-    pipeline_arg.c_str(),
-    nullptr);
-  //std::cout << pipeline_arg << std::endl;
+  pipeline = gst_parse_launch(pipeline_arg.c_str(), nullptr);
+  // std::cout << pipeline_arg << std::endl;
   gst_element_set_state(pipeline, GST_STATE_PLAYING);
 }
 

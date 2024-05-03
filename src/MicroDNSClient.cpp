@@ -40,12 +40,10 @@ MicroDNSClient::getAddressesForDomainName(std::string hostname) {
     inet_ntop(res->ai_family, addr, ipstr, res->ai_addrlen);
     // std::cout << ipstr << "\n";
     if (strlen(ipstr) > 3)
-        addrlist.push_back(ipstr);
+      addrlist.push_back(ipstr);
     ipstr[0] = '\0';
   }
   freeaddrinfo(res0);
 
   return addrlist;
 }
-
-

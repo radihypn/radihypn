@@ -4,9 +4,6 @@
 using json = nlohmann::json;
 
 RadioStream RadioStream::fromJson(std::string jsonData) {
-    json parsed = json::parse(jsonData);
-    return RadioStream {
-        .name = parsed["name"],
-        .url = parsed["url_resolved"]
-    };
+  json parsed = json::parse(jsonData);
+  return RadioStream{.name = parsed["name"], .url = parsed["url_resolved"]};
 }
