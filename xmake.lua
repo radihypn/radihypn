@@ -27,6 +27,7 @@ package("libxapp2")
 
         -- Proceed with the installation
         local configs = {}
+        table.insert(configs, "-Ddefault_library=static")
         table.insert(configs, "-Dapp-lib-only=true")
         table.insert(configs, "-Dstatus-notifier=false")
         table.insert(configs, "-Dpy-overrides-dir=" .. package:buildir())
