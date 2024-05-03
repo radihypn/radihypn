@@ -136,7 +136,7 @@ int main(int argc, char *argv[]) {
 
   MyWindow window;
 
-  window.signal_delete_event().connect([&app] (GdkEventAny* event) {
+  window.signal_delete_event().connect([&app](GdkEventAny *event) {
     app->quit();
     return true;
   });
