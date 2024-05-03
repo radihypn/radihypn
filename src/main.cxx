@@ -131,10 +131,15 @@ private:
 };
 
 int main(int argc, char *argv[]) {
-  auto app = Gtk::Application::create(argc, argv, "org.example.search");
+  auto app = Gtk::Application::create(argc, argv, "com.github.radihypn");
   app->hold();
 
   MyWindow window;
+
+  window.signal_delete_event().connect([&app] (GdkEventAny* event) {
+    app->quit();
+    return true;
+  });
 
   return app->run(window);
 }
