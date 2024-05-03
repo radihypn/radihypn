@@ -1,10 +1,9 @@
 add_requires("nlohmann_json")
 add_requires("sqlitecpp")
-add_requires("utest.h")
 add_requires("gtkmm-3.0", {system = true})
 add_requires("gstreamer-1.0", {system = true})
 add_requires("sqlite3", {system = true})
-add_requires("curlpp-static")
+add_requires("curlpp", {configs = {shared = false}})
 add_requires("libcurl", {system = true})
 add_requires("libxapp2", {system = false})
 
@@ -35,46 +34,6 @@ package("libxapp2")
     end)
 package_end("libxapp2")
 
-package("curlpp-static")
-    set_homepage("http://www.curlpp.org")
-    set_description("C++ wrapper around libcURL")
-    set_license("MIT")
-
-    add_urls("https://github.com/jpbarrette/curlpp.git")
-    add_versions("2023.07.27", "1d8c7876cc81d7d125b663066282b207d9cbfe9a")
-
-    add_deps("libcurl")
-
-    on_install("windows", "linux", "macosx", "mingw", "cross", function (package)
-        io.writefile("xmake.lua", ([[
-            set_languages("c++11")
-            add_rules("mode.debug", "mode.release")
-            add_requires("libcurl")
-            target("curlpp")
-                set_kind("static")
-                add_files("src/**.cpp")
-                add_includedirs("include/")
-                add_headerfiles("include/(**.hpp)", "include/(**.inl)")
-                add_packages("libcurl")
-                if is_plat("windows") and is_kind("shared") then
-                    add_rules("utils.symbols.export_all", {export_classes = true})
-                end
-        ]]))
-        import("package.tools.xmake").install(package)
-    end)
-
-    on_test(function (package)
-        assert(package:check_cxxsnippets({test = [[
-            int main() {
-                curlpp::Cleanup cleaner;
-                curlpp::Easy request;
-                request.setOpt<curlpp::options::Url>("https://example.com");
-            }
-        ]]}, { configs = {languages = "c++11"}, includes = {"curlpp/cURLpp.hpp", "curlpp/Easy.hpp", "curlpp/Options.hpp"}
-        }))
-    end)
-package_end("curlpp-static")
-
 add_rules("mode.release")
 
 local objs = {}
@@ -87,11 +46,10 @@ for _, file in ipairs(os.files("src/*.cpp")) do
         add_packages("gstreamer-1.0")
         add_packages("gtkmm-3.0")
         add_packages("libcurl")
-        add_packages("curlpp-static")
+        add_packages("curlpp")
         add_packages("sqlite3")
         add_packages("sqlitecpp")
         add_packages("nlohmann_json")
-        add_packages("utest.h")
         add_includedirs("include")
 end
 
@@ -107,11 +65,10 @@ for _, file in ipairs(os.files("debug/*.cpp")) do
         add_packages("gstreamer-1.0")
         add_packages("gtkmm-3.0")
         add_packages("libcurl")
-        add_packages("curlpp-static")
+        add_packages("curlpp")
         add_packages("sqlite3")
         add_packages("sqlitecpp")
         add_packages("nlohmann_json")
-        add_packages("utest.h")
         add_syslinks("pthread")
 end
 
@@ -124,11 +81,10 @@ target("radihypn")
     add_packages("gstreamer-1.0")
     add_packages("gtkmm-3.0")
     add_packages("libcurl")
-    add_packages("curlpp-static")
+    add_packages("curlpp")
     add_packages("sqlite3")
     add_packages("sqlitecpp")
     add_packages("nlohmann_json")
-    add_packages("utest.h")
     add_packages("libxapp2")
     add_includedirs("include")
     add_syslinks("pthread")
