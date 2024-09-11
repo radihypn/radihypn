@@ -6,11 +6,13 @@ void Player::reset() {
     gst_object_unref(pipeline);
     pipeline = nullptr;
   }
+  url = "";
 }
 
-void Player::play(std::string url) {
+void Player::play(std::string myurl) {
   reset();
 
+  url = myurl;
   pipeline_arg = "playbin uri=" + url;
   pipeline = gst_parse_launch(pipeline_arg.c_str(), nullptr);
   // std::cout << pipeline_arg << std::endl;

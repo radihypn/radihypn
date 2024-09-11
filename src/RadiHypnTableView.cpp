@@ -83,7 +83,7 @@ void RadiHypnTableView::on_row_activated(const Gtk::TreeModel::Path &path,
     selected.url = url;
     selected.favourite = favourite;
 
-    m_row_activated_signal.emit(path, column);
+    m_row_activated_signal.emit(selected);
   }
 }
 

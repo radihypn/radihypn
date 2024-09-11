@@ -10,7 +10,7 @@ public:
     void populate_table(const std::vector<RadioStream>& streams);
     void update_table(const std::vector<RadioStream>& streams);
 
-    typedef sigc::signal<void(const Gtk::TreeModel::Path&, Gtk::TreeViewColumn*)> RowActivatedSignal;
+    typedef sigc::signal<void(RadioStream)> RowActivatedSignal;
     typedef sigc::signal<void(const Glib::ustring&, const Glib::ustring&, bool)> FavouriteToggledSignal;
 
     RowActivatedSignal signal_row_activated();

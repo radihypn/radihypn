@@ -39,6 +39,8 @@ public:
 
     m_table_view.signal_favourite_toggled().connect(
         sigc::mem_fun(*this, &MyWindow::onFavouriteToggled));
+    m_table_view.signal_row_activated().connect(
+        sigc::mem_fun(*this, &MyWindow::onRowActivated));
 
     vbox->pack_start(m_table_view, Gtk::PACK_EXPAND_WIDGET);
 
@@ -94,6 +96,17 @@ private:
       db.insert(RadioStream{.name = name, .url = url, .favourite = fav});
     }
   }
+
+  void onRowActivated(RadioStream rs) {
+    if (player.url == rs.url) {
+      player.reset();
+    } else {
+      player.play(rs.url);
+    }
+  }
+
+
+
   void onSearchStarted(const std::string &search_text, bool favorites_only) {
     if (search_text.empty()) {
       m_table_view.update_table(db.listFavourites());
