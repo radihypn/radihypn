@@ -25,6 +25,7 @@ public:
 private:
     void on_row_activated(const Gtk::TreeModel::Path& path, Gtk::TreeViewColumn* column);
     void on_favourite_toggled(const Glib::ustring& path);
+    bool on_button_press_event(GdkEventButton*);
 
     class ModelColumns : public Gtk::TreeModel::ColumnRecord {
     public:

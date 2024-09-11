@@ -1,6 +1,7 @@
 #include <RadiHypnTableView.hpp>
 #include <gtkmm/box.h>
 #include <gtkmm/enums.h>
+#include <gtkmm/treeselection.h>
 
 RadiHypnTableView::RadiHypnTableView() {
   set_orientation(Gtk::ORIENTATION_VERTICAL);
@@ -49,7 +50,61 @@ RadiHypnTableView::RadiHypnTableView() {
   m_scrolled_window.set_policy(Gtk::POLICY_NEVER, Gtk::POLICY_AUTOMATIC);
 
   pack_start(m_scrolled_window, Gtk::PACK_EXPAND_WIDGET);
+
+  // Catch the button press event before the tree view's internal handler
+  m_tree_view.signal_button_press_event().connect(
+      sigc::mem_fun(*this, &RadiHypnTableView::on_button_press_event), false);
 }
+
+bool RadiHypnTableView::on_button_press_event(GdkEventButton *button_event) {
+  int x = static_cast<int>(button_event->x);
+  int y = static_cast<int>(button_event->y);
+
+  int cell_x, cell_y;
+  Gtk::TreeViewColumn *column;
+  Gtk::TreeModel::Path path;
+
+  if (m_tree_view.get_path_at_pos(x, y, path, column, cell_x, cell_y)) {
+    // Iterate over cell renderers in the column
+    for (auto cell : column->get_cells()) {
+        // Check if the cell is of type CellRendererToggle
+        if (auto *cell_toggled = dynamic_cast<Gtk::CellRendererToggle *>(cell)) {
+            // If we have a toggle cell renderer, handle toggling and skip activating the row
+            auto iter = m_list_store->get_iter(path);
+            if (iter) {
+                Gtk::TreeModel::Row row = *iter;
+                row[m_columns.m_col_favourite] = !row[m_columns.m_col_favourite];
+                Glib::ustring name = row[m_columns.m_col_name];
+                Glib::ustring url = row[m_columns.m_col_url];
+                bool favourite = row[m_columns.m_col_favourite];
+
+                m_favourite_toggled_signal.emit(name, url, favourite);
+            }
+            // Return true to stop other handlers from processing the event
+            return true;
+        }
+    }
+
+    // Handle row selection and activation if it wasn't a toggle cell renderer click
+    auto iter = m_list_store->get_iter(path);
+    if (iter) {
+      Gtk::TreeModel::Row row = *iter;
+
+      Glib::ustring name = row[m_columns.m_col_name];
+      Glib::ustring url = row[m_columns.m_col_url];
+      bool favourite = row[m_columns.m_col_favourite];
+
+      selected.name = name;
+      selected.url = url;
+      selected.favourite = favourite;
+
+      m_row_activated_signal.emit(selected);
+    }
+  }
+
+  return false; // To let other handlers process the event (important)
+}
+
 
 void RadiHypnTableView::populate_table(
     const std::vector<RadioStream> &streams) {
@@ -78,12 +133,6 @@ void RadiHypnTableView::on_row_activated(const Gtk::TreeModel::Path &path,
     Glib::ustring name = row[m_columns.m_col_name];
     Glib::ustring url = row[m_columns.m_col_url];
     bool favourite = row[m_columns.m_col_favourite];
-
-    selected.name = name;
-    selected.url = url;
-    selected.favourite = favourite;
-
-    m_row_activated_signal.emit(selected);
   }
 }
 
@@ -96,7 +145,7 @@ void RadiHypnTableView::on_favourite_toggled(const Glib::ustring &path) {
     Glib::ustring url = row[m_columns.m_col_url];
     bool favourite = row[m_columns.m_col_favourite];
 
-    m_favourite_toggled_signal.emit(name, url, favourite);
+    //m_favourite_toggled_signal.emit(name, url, favourite);
   }
 }
 
