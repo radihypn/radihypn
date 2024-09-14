@@ -7,5 +7,5 @@ Comment=Nice radio app for gtk3 environment
 Icon=radihypn
 Exec=/bin/bash -c "$HOME/.local/bin/radihypn"
 Actions=
-Categories=Other;
+Categories=Audio;Network;
 StartupNotify=true
