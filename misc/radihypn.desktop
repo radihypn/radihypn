@@ -1,13 +1,11 @@
 [Desktop Entry]
-Comment=Nice radio app for gtk3 environment
-Exec=$HOME/.local/bin/radihypn
-GenericName=radio app
-Icon=radihypn.png
-NoDisplay=false
-Path=
-StartupNotify=true
-Terminal=false
-TerminalOptions=
+Version=1.1
 Type=Application
-X-KDE-SubstituteUID=false
-X-KDE-Username=
+Name=radihypn
+GenericName=radio app
+Comment=Nice radio app for gtk3 environment
+Icon=radihypn
+Exec=/bin/bash -c "$HOME/.local/bin/radihypn"
+Actions=
+Categories=Other;
+StartupNotify=true

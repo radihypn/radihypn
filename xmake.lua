@@ -89,3 +89,6 @@ target("radihypn")
     add_packages("libxapp2")
     add_includedirs("include")
     add_syslinks("pthread")
+
+    add_installfiles("misc/radihypn.desktop", {prefixdir = "share/applications"})
+    add_installfiles("misc/radihypn.png", {prefixdir = "share/icons"})

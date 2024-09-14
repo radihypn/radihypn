@@ -15,6 +15,7 @@
 
 #include <xapp/libxapp/xapp-gtk-window.h>
 #include <xapp/libxapp/xapp-status-icon.h>
+#include <envinfo.hpp>
 
 class MyWindow : public Gtk::Window {
 public:
@@ -23,7 +24,7 @@ public:
     set_default_size(400, 500);
 
     statusIcon = xapp_status_icon_new();
-    xapp_status_icon_set_icon_name(statusIcon, "headphones-symbolic");
+    xapp_status_icon_set_icon_name(statusIcon, "radihypn");
     xapp_status_icon_set_tooltip_text(statusIcon, "radihypn");
 
     g_signal_connect_swapped(
