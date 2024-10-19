@@ -24,7 +24,17 @@ cd radihypn
 xmake config -y --mode=release && xmake build -y radihypn && DESTDIR=~/.local xmake install -y
 ```
 
-### support
+## Install for Debian 12
+
+### At the cloned radihypn repo folder, run:
+
+```sh
+curl -fsSL https://xmake.io/shget.text | bash
+source ~/.xmake/profile
+sudo apt install -y build-essential libsqlite3-dev libgstreamer1.0-dev libcurlpp-dev libgtk-3-dev libcurl4-openssl-dev pkg-config libgtkmm-3.0-dev meson cmake xmake git unzip valac gobject-introspection python3-pip wget curl libgirepository1.0-dev python3-gi python3-gi-cairo ninja-build python-gi-dev && xmake config -y --mode=release && xmake build -y radihypn && DESTDIR=~/.local xmake install -y
+```
+
+## support
 You can support this project sending donations to:
 
 - monero: 87HRwEMUPwVKU6h79WYm2bVtEasGXUBnmQSKgkfCfgdZCjHUGPEd91AAzYz6SDoH9vDvqPm1zxyNyRWw1pFkUvZSQNpJt18
